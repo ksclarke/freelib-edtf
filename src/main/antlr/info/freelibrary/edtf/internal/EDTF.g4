@@ -26,7 +26,6 @@ Dash : '-';
 Plus : '+';
 Colon : ':';
 Slash : '/';
-WS : [ \t\r\n]+ -> skip ;
 
 Year : PositiveYear | NegativeYear | '0000';
 PositiveYear
@@ -79,7 +78,7 @@ ZoneInfo
 
 // ***********************   Level 0: Parser Rules   ************************ //
 
-level0Expression : date+ | dateTime | l0Interval; // FIXME? The plus?
+level0Expression : date | dateTime | l0Interval;
 date : Year | YearMonth | YearMonthDay;
 dateTime : YearMonthDay T Time;
 

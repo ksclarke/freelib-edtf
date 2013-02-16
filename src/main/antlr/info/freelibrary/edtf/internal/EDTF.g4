@@ -6,39 +6,27 @@
  *
  * EDTF specification website: http://www.loc.gov/standards/datetime/
  *
- * Author: Kevin S. Clarke <ksclarke@gmail.com>
+ * Author: Kevin S. Clarke < ksclarke@gmail.com >
  * Created: 2013/02/06
- * Updated: 2013/02/15
+ * Updated: 2013/02/16
  *
  * License: BSD 2-Clause http://github.com/ksclarke/freelib-edtf/LICENSE
  */
 
 grammar EDTF;
 
+edtf : level0Expression | level1Expression; 
+	//| level2Expression;
+
+// **************************   Level 0: Tokens   *************************** //
+
+T : 'T';
+Z : 'Z';
 Dash : '-';
 Plus : '+';
 Colon : ':';
 Slash : '/';
-T : 'T';
-Z : 'Z';
-
-edtf
-	: level0Expression;
-	//| level1Expression | level2Expression;
-
-// **************************       Level 0       *************************** //
-
-level0Expression : (date | dateTime | l0Interval)+;
-date : Year | YearMonth | YearMonthDay;
-dateTime : YearMonthDay T Time;
-
-Time : BaseTime Zone?;
-BaseTime : Hour Colon Minute Colon Second | '24' Colon '00' Colon '00';
-Zone : Z | (Plus | Dash) (OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59);
-
-// **************************  Level 0: Interval  *************************** //
-
-l0Interval : date Slash date;
+WS : [ \t\r\n]+ -> skip ;
 
 Year : PositiveYear | NegativeYear | '0000';
 PositiveYear
@@ -48,6 +36,9 @@ PositiveYear
     | Digit Digit Digit PositiveDigit
     ;
 NegativeYear : Dash PositiveYear;
+
+Digit : PositiveDigit | '0';
+PositiveDigit : '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
 
 Month : OneThru12;
 MonthDay
@@ -80,43 +71,65 @@ OneThru59 : OneThru31
     | '52' | '53' | '54' | '55' | '56' | '57' | '58' | '59';
 ZeroThru59 : '00' | OneThru59;
 
-Digit : PositiveDigit | '0';
-PositiveDigit : '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+Time : BaseTime ZoneInfo?;
+BaseTime : Hour Colon Minute Colon Second | '24' Colon '00' Colon '00';
+ZoneInfo
+	: Z
+	| (Plus | Dash) (OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59);
 
-// Where is this used?
-Day : OneThru31;
+// ***********************   Level 0: Parser Rules   ************************ //
 
-WS : [ \t\r\n]+ -> skip ;
+level0Expression : date+ | dateTime | l0Interval; // FIXME? The plus?
+date : Year | YearMonth | YearMonthDay;
+dateTime : YearMonthDay T Time;
 
-// **************************       Level 1       *************************** //
+// ********************  Level 0: Interval Parser Rules  ******************** //
 
-//level1Expression
-//    : uncertainOrApproxDate
-//    | unspecified
-//    | l1Interval
-//    | longYearSimple
-//    | season;
-//uncertainOrApproxDate : date uaSymbol;
-//unspecified
-//    : yearWithOneOrTwoUnspecifedDigits
-//    | monthUnspecified
-//    | dayUnspecified
-//    | dayAndMonthUnspecified;
-//yearWithOneOrTwoUnspecifedDigits : Digit Digit (Digit | 'u') 'u';
-//monthUnspecified : year '-uu';
-//dayUnspecified : yearMonth '-uu';
-//dayAndMonthUnspecified : year '-uu-uu';
+l0Interval : date Slash date;
 
-// **************************  Level 1: Interval  *************************** //
+// ***************************   Level 1: Tokens   ************************** //
 
-//l1Interval : l1Start '/' l1End;
-//l1Start : (dateOrSeason uaSymbol?) | 'unknown';
-//l1End : l1Start | 'open';
-//longYearSimple : 'y' '-'? PositiveDigit Digit Digit Digit Digit+;
-//season : year '-' seasonNumber;
-//uaSymbol : ('?' | '~' | '?~');
-//seasonNumber : '21' | '22' | '23' | '24';
-//dateOrSeason : date | season;
+Y : 'y';
+U : 'u';
+UU : 'uu';
+Tilde : '~';
+Open : 'open';
+QuestionMark : '?';
+Unknown : 'unknown';
+QuestionMarkTilde : '?~';
+
+YearWithOneOrTwoUnspecifedDigits : Digit Digit (Digit | U) U;
+LongYearSimple : Y Dash? PositiveDigit Digit Digit Digit Digit+;
+
+// *************************  Level 1: Parser Rules  ************************ //
+
+level1Expression
+    : uncertainOrApproxDate
+    | unspecified
+    | l1Interval
+    | LongYearSimple
+    | season;
+
+unspecified
+    : YearWithOneOrTwoUnspecifedDigits
+    | monthUnspecified
+    | dayUnspecified
+    | dayAndMonthUnspecified;
+
+monthUnspecified : Year Dash UU;
+dayUnspecified : YearMonth Dash UU;
+uncertainOrApproxDate : date uaSymbol;
+dayAndMonthUnspecified : Year Dash UU Dash UU;
+
+season : Year Dash seasonNumber;
+seasonNumber : '21' | '22' | '23' | '24';
+uaSymbol : (QuestionMark | Tilde | QuestionMarkTilde);
+
+// *******************  Level 1: Interval Parser Rules  ********************* //
+
+l1Interval : l1Start Slash l1End;
+l1Start : ((date | season) uaSymbol?) | Unknown;
+l1End : l1Start | Open;
 
 // **************************       Level 2       *************************** //
 

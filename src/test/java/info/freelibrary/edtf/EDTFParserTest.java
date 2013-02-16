@@ -4,12 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EDTFParserTest {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(EDTFParserTest.class);
 	
 	private static DateTimeParser myParser;
 
@@ -195,6 +191,276 @@ public class EDTFParserTest {
 		
 		try {
 			myParser.parse("1883-01-03T24:00:00-00:45");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level0IntervalTest() {
+		try {
+			myParser.parse("2004-02-01/2005-02");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2004-02-01/2005-02-08");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2004-06/2006-08");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1964/2008");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2004-02-01/2005");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2005/2006-02");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level1UncertainOrApproxDateTest() {
+		try {
+			myParser.parse("2001?");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2001~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2001?~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2002-12?");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2002-12~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2002-12?~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2003-12-01?");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2003-12-01~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2001-12-01?~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level1UnspecifiedTest() {
+		try {
+			myParser.parse("199u");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("19uu");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1999-uu");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1999-01-uu");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1999-uu-uu");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level1LongYearSimpleTest() {
+		try {
+			myParser.parse("y170000002");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("y-170000002");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level1SeasonTest() {
+		try {
+			myParser.parse("2001-21");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2003-22");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2000-23");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2010-24");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level1IntervalTest() {
+		try {
+			myParser.parse("unknown/2006");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2004-06-01/unknown");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2004-01-01/open");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984~/2004-06");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984/2004-06~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984~/2004~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984?/2004?~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984-06?/2004-08?");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984-06-02?/2004-08-08~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1984-06-02?/unknown");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());

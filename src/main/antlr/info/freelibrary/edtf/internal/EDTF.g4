@@ -26,7 +26,7 @@ Plus : '+';
 Colon : ':';
 Slash : '/';
 
-Year : PositiveYear | NegativeYear | '0000';
+year : PositiveYear | NegativeYear | '0000';
 NegativeYear : Dash PositiveYear;
 PositiveYear
     : PositiveDigit Digit Digit Digit
@@ -38,16 +38,16 @@ PositiveYear
 Digit : PositiveDigit | '0';
 PositiveDigit : '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
 
-Month : OneThru12;
-MonthDay
+month : OneThru12;
+monthDay
     : ( '01' | '03' | '05' | '07' | '08' | '10' | '12' ) Dash OneThru31
     | ( '04' | '06' | '09' | '11' ) Dash OneThru30
     | '02' Dash OneThru29
     ;
 
-YearMonth : Year Dash Month;
-YearMonthDay : Year Dash MonthDay;
-Day : OneThru31;
+yearMonth : year Dash month;
+yearMonthDay : year Dash monthDay;
+day : OneThru31;
 
 Hour : ZeroThru23;
 Minute : ZeroThru59;
@@ -78,8 +78,8 @@ ZOffset : (OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59);
 // ***********************   Level 0: Parser Rules   ************************ //
 
 level0Expression : date | dateTime | l0Interval;
-date : Year | YearMonth | YearMonthDay;
-dateTime : YearMonthDay T Time;
+date : year | yearMonth | yearMonthDay;
+dateTime : yearMonthDay T Time;
 
 // ********************  Level 0: Interval Parser Rules  ******************** //
 
@@ -114,12 +114,12 @@ unspecified
     | dayUnspecified
     | dayAndMonthUnspecified;
 
-monthUnspecified : Year Dash UU;
-dayUnspecified : YearMonth Dash UU;
+monthUnspecified : year Dash UU;
+dayUnspecified : yearMonth Dash UU;
 uncertainOrApproxDate : date uaSymbol;
-dayAndMonthUnspecified : Year Dash UU Dash UU;
+dayAndMonthUnspecified : year Dash UU Dash UU;
 
-season : Year Dash seasonNumber;
+season : year Dash seasonNumber;
 seasonNumber : '21' | '22' | '23' | '24';
 uaSymbol : QuestionMark | Tilde | QuestionMarkTilde;
 
@@ -143,9 +143,9 @@ CloseParen : ')';
 OpenBracket : '[';
 CloseBracket : ']';
 
-partialDay : OpenParen Day CloseParen;
-partialMonthDay : OpenParen MonthDay CloseParen;
-partialMonth : OpenParen Month CloseParen;
+partialDay : OpenParen day CloseParen;
+partialMonthDay : OpenParen monthDay CloseParen;
+partialMonth : OpenParen month CloseParen;
 
 // ***********************   Level 2: Parser Rules   ************************ //
 
@@ -161,18 +161,18 @@ level2Expression
     ;
 
 partialUncertainOrApproximate : iuaBase | OpenParen iuaBase CloseParen uaSymbol;
-day : Day;
-year : Year;
-dash : Dash;
+//day : Day;
+//year : Year;
+//dash : Dash;
 iuaBase
-    : Year uaSymbol Dash Month (Dash partialDay uaSymbol)?
-    | Year uaSymbol Dash MonthDay uaSymbol?
+    : year uaSymbol Dash month (Dash partialDay uaSymbol)?
+    | year uaSymbol Dash monthDay uaSymbol?
     | year uaSymbol? Dash partialMonth uaSymbol Dash day
     //| Year uaSymbol? Dash partialMonth uaSymbol (Dash partialDay uaSymbol)? // works
-    | YearMonth uaSymbol Dash partialDay uaSymbol
-    | YearMonth uaSymbol Dash Day
-    | YearMonth Dash partialDay uaSymbol // next one(?)
-    | Year Dash partialMonthDay uaSymbol
+    | yearMonth uaSymbol Dash partialDay uaSymbol
+    | yearMonth uaSymbol Dash day
+    | yearMonth Dash partialDay uaSymbol // next one(?)
+    | year Dash partialMonthDay uaSymbol
     | season uaSymbol
     ;
 
@@ -184,15 +184,15 @@ yearWithU
     | digitOrU U digitOrU digitOrU
     | digitOrU  digitOrU U digitOrU
     | digitOrU digitOrU digitOrU U;
-yearMonthWithU : (Year | yearWithU) Dash monthWithU | yearWithU Dash Month;
+yearMonthWithU : (year | yearWithU) Dash monthWithU | yearWithU Dash month;
 yearMonthDayWithU
-    : (yearWithU | Year) Dash monthDayWithU
-    | yearWithU Dash MonthDay;
+    : (yearWithU | year) Dash monthDayWithU
+    | yearWithU Dash monthDay;
 monthDayWithU
-    : (Month | monthWithU) Dash dayWithU
-    | monthWithU Dash Day;
+    : (month | monthWithU) Dash dayWithU
+    | monthWithU Dash day;
 monthWithU : OneThru12 | '0u' | '1u' | (U digitOrU);
-dayWithU : Day | U digitOrU | OneThru3 U;
+dayWithU : day | U digitOrU | OneThru3 U;
 digitOrU : positiveDigitOrU | '0';
 positiveDigitOrU : PositiveDigit | U;
 OneThru3 : '1' | '2' | '3';
@@ -213,9 +213,9 @@ listElement
 earlier : DotDot date;
 later : date DotDot;
 consecutives
-    : YearMonthDay DotDot YearMonthDay
-    | YearMonth DotDot YearMonth
-    | Year DotDot Year;
+    : yearMonthDay DotDot yearMonthDay
+    | yearMonth DotDot yearMonth
+    | year DotDot year;
 maskedPrecision : Digit Digit (Digit X | XX );
 
 // ********************  Level 2: Interval Parser Rules  ******************** //

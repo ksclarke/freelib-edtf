@@ -466,4 +466,98 @@ public class EDTFParserTest {
 			fail(details.getMessage());
 		}
 	}
+	
+	@Test
+	public void level2PartialUncertainOrApproximateTest() {
+		try { // Uncertain year; month, day known
+			myParser.parse("2004?-06-11");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year and month are approximate; day known
+			myParser.parse("2004-06~-11");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Uncertain month, year and day known
+			myParser.parse("2004-(06)?-11");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Day is approximate; year, month known
+			myParser.parse("2004-06-(11)~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year known, month within year is approximate and uncertain
+			myParser.parse("2004-(06)?~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year known, month and day uncertain
+			myParser.parse("2004-(06-11)?");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year uncertain, month known, day approximate
+			myParser.parse("2004?-06-(11)~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year uncertain and month is both uncertain and approximate
+			myParser.parse("(2004-(06)~)?");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year uncertain and month is both uncertain and approximate
+			myParser.parse("2004?-(06)?~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year uncertain, month and day approximate
+			myParser.parse("(2004)?-06-04~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year known, month and day approximate
+			myParser.parse("(2011)-06-04~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Year known, month and day approximate
+			myParser.parse("2011-(06-04)~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try { // Approximate season (around Autumn 2011)
+			myParser.parse("2011-23~");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+	}
 }

@@ -6,7 +6,7 @@
  *
  * EDTF specification website: http://www.loc.gov/standards/datetime/
  *
- * Author: Kevin S. Clarke < ksclarke@gmail.com >
+ * Author: Kevin S. Clarke (ksclarke@gmail.com)
  * Created: 2013/02/06
  * Updated: 2013/02/16
  *
@@ -15,8 +15,7 @@
 
 grammar EDTF;
 
-edtf : level0Expression | level1Expression; 
-	//| level2Expression;
+edtf : level0Expression | level1Expression | level2Expression;
 
 // **************************   Level 0: Tokens   *************************** //
 
@@ -28,13 +27,13 @@ Colon : ':';
 Slash : '/';
 
 Year : PositiveYear | NegativeYear | '0000';
+NegativeYear : Dash PositiveYear;
 PositiveYear
     : PositiveDigit Digit Digit Digit
     | Digit PositiveDigit Digit Digit
     | Digit Digit PositiveDigit Digit
     | Digit Digit Digit PositiveDigit
     ;
-NegativeYear : Dash PositiveYear;
 
 Digit : PositiveDigit | '0';
 PositiveDigit : '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
@@ -48,6 +47,7 @@ MonthDay
 
 YearMonth : Year Dash Month;
 YearMonthDay : Year Dash MonthDay;
+Day : OneThru31;
 
 Hour : ZeroThru23;
 Minute : ZeroThru59;
@@ -72,9 +72,8 @@ ZeroThru59 : '00' | OneThru59;
 
 Time : BaseTime ZoneInfo?;
 BaseTime : Hour Colon Minute Colon Second | '24' Colon '00' Colon '00';
-ZoneInfo
-	: Z
-	| (Plus | Dash) (OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59);
+ZoneInfo : Z | (Plus | Dash) ZOffset;
+ZOffset : (OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59);
 
 // ***********************   Level 0: Parser Rules   ************************ //
 
@@ -122,89 +121,117 @@ dayAndMonthUnspecified : Year Dash UU Dash UU;
 
 season : Year Dash seasonNumber;
 seasonNumber : '21' | '22' | '23' | '24';
-uaSymbol : (QuestionMark | Tilde | QuestionMarkTilde);
+uaSymbol : QuestionMark | Tilde | QuestionMarkTilde;
 
 // *******************  Level 1: Interval Parser Rules  ********************* //
 
 l1Interval : l1Start Slash l1End;
-l1Start : ((date | season) uaSymbol?) | Unknown;
+l1Start : dateOrSeason uaSymbol? | Unknown;
 l1End : l1Start | Open;
+dateOrSeason : date | season;
 
-// **************************       Level 2       *************************** //
+// **************************   Level 2: Tokens   *************************** //
 
-//level2Expression
-//    : internalUncertainOrApproximate
-//    | internalUnspecified
+X : 'x';
+XX : 'xx';
+Comma : ',';
+DotDot : '..';
+OpenParen : '(';
+OpenBrace : '{';
+CloseBrace : '}';
+CloseParen : ')';
+OpenBracket : '[';
+CloseBracket : ']';
+
+partialDay : OpenParen Day CloseParen;
+partialMonthDay : OpenParen MonthDay CloseParen;
+partialMonth : OpenParen Month CloseParen;
+
+// ***********************   Level 2: Parser Rules   ************************ //
+
+level2Expression
+    : partialUncertainOrApproximate
+//    | partialUnspecified
 //    | choiceList
 //    | inclusiveList
 //    | maskedPrecision
 //    | l2Interval
 //    | longYearScientific
-//    | seasonQualified;
-//internalUncertainOrApproximate :  iuaBase | '(' iuaBase ')' uaSymbol;
-//iuaBase
-//    : year uaSymbol '-' month ('-(' day ')' uaSymbol)?
-//    | year uaSymbol '-' monthDay uaSymbol?
-//    | year uaSymbol? '-(' month ')' uaSymbol ('-(' day ')' uaSymbol)?
-//    | year uaSymbol? '-(' month ')' uaSymbol ( '-' day )?
-//    | yearMonth uaSymbol '-(' day ')' uaSymbol
-//    | yearMonth uaSymbol '-' day
-//    | yearMonth '-(' day ')' uaSymbol
-//    | year '-(' monthDay ')' uaSymbol
-//    | season uaSymbol;
-//internalUnspecified : yearWithU | yearMonthWithU | yearMonthDayWithU;
-//yearWithU
-//    : 'u' digitOrU digitOrU digitOrU
-//    | digitOrU 'u' digitOrU digitOrU
-//   | digitOrU  digitOrU 'u' digitOrU
-//    | digitOrU digitOrU digitOrU 'u';
-//yearMonthWithU : (year | yearWithU) '-' monthWithU | yearWithU '-' month;
-//yearMonthDayWithU
-//    : (yearWithU | year) '-' monthDayWithU
-//    | yearWithU '-' monthDay;
-//monthDayWithU
-//    : (month | monthWithU) '-' dayWithU
-//    | monthWithU '-' day;
-//monthWithU : OneThru12 | '0u' | '1u' | ('u' digitOrU);
-//dayWithU : OneThru31 | 'u' digitOrU | OneThru3 'u';
-//digitOrU : positiveDigitOrU | '0';
-//positiveDigitOrU : PositiveDigit | 'u';
-//OneThru3 : '1' | '2' | '3';
+//    | seasonQualified
+    ;
 
-//choiceList : '[' listContent ']';
-//inclusiveList : '{' listContent '}';
-//listContent
-//    : earlier (',' listElement)*
-//    | (earlier ',')? (listElement ',')* later
-//    | listElement (',' listElement)+
-//    | consecutives;
-//listElement
-//    : date
-//    | dateWithInternalUncertainty
-//    | uncertainOrApproxDate
-//    | unspecified
-//    | consecutives;
-//earlier : '..' date;
-//later : date '..';
-//consecutives
-//    : yearMonthDay '..' yearMonthDay
-//    | yearMonth '..' yearMonth
-//    | year '..' year;
-//maskedPrecision : Digit Digit (Digit 'x' | 'xx' );
+partialUncertainOrApproximate : iuaBase | OpenParen iuaBase CloseParen uaSymbol;
+day : Day;
+year : Year;
+dash : Dash;
+iuaBase
+    : Year uaSymbol Dash Month (Dash partialDay uaSymbol)?
+    | Year uaSymbol Dash MonthDay uaSymbol?
+    | year uaSymbol? Dash partialMonth uaSymbol Dash day
+    //| Year uaSymbol? Dash partialMonth uaSymbol (Dash partialDay uaSymbol)? // works
+    | YearMonth uaSymbol Dash partialDay uaSymbol
+    | YearMonth uaSymbol Dash Day
+    | YearMonth Dash partialDay uaSymbol // next one(?)
+    | Year Dash partialMonthDay uaSymbol
+    | season uaSymbol
+    ;
 
-// **************************  Level 2: Interval  *************************** //
+// FIXME : PartialDay, etc., replaced above by their values (like PartialMonth)
 
-//l2Interval
-//    : dateOrSeason '/' dateWithInternalUncertainty
-//    | dateWithInternalUncertainty '/' dateOrSeason
-//    | dateWithInternalUncertainty '/' dateWithInternalUncertainty;
-//longYearScientific
-//    : 'y' '-'? positiveInteger 'e' positiveInteger ('p' positiveInteger)?;
-//positiveInteger : PositiveDigit Digit*;
-//seasonQualified : season '^' seasonQualifier;
-//seasonQualifier : QualifyingString;
-//dateWithInternalUncertainty
-//    : internalUncertainOrApproximate
-//    | internalUnspecified;
+partialUnspecified : yearWithU | yearMonthWithU | yearMonthDayWithU;
+yearWithU
+    : U digitOrU digitOrU digitOrU
+    | digitOrU U digitOrU digitOrU
+    | digitOrU  digitOrU U digitOrU
+    | digitOrU digitOrU digitOrU U;
+yearMonthWithU : (Year | yearWithU) Dash monthWithU | yearWithU Dash Month;
+yearMonthDayWithU
+    : (yearWithU | Year) Dash monthDayWithU
+    | yearWithU Dash MonthDay;
+monthDayWithU
+    : (Month | monthWithU) Dash dayWithU
+    | monthWithU Dash Day;
+monthWithU : OneThru12 | '0u' | '1u' | (U digitOrU);
+dayWithU : Day | U digitOrU | OneThru3 U;
+digitOrU : positiveDigitOrU | '0';
+positiveDigitOrU : PositiveDigit | U;
+OneThru3 : '1' | '2' | '3';
+
+choiceList : OpenBracket listContent CloseBracket;
+inclusiveList : OpenBrace listContent CloseBrace;
+listContent
+    : earlier (Comma listElement)*
+    | (earlier Comma)? (listElement Comma)* later
+    | listElement (Comma listElement)+
+    | consecutives;
+listElement
+    : date
+    | dateWithPartialUncertainty
+    | uncertainOrApproxDate
+    | unspecified
+    | consecutives;
+earlier : DotDot date;
+later : date DotDot;
+consecutives
+    : YearMonthDay DotDot YearMonthDay
+    | YearMonth DotDot YearMonth
+    | Year DotDot Year;
+maskedPrecision : Digit Digit (Digit X | XX );
+
+// ********************  Level 2: Interval Parser Rules  ******************** //
+
+l2Interval
+    : dateOrSeason Slash dateWithPartialUncertainty
+    | dateWithPartialUncertainty Slash dateOrSeason
+    | dateWithPartialUncertainty Slash dateWithPartialUncertainty;
+longYearScientific
+    : Y Dash? positiveInteger 'e' positiveInteger ('p' positiveInteger)?;
+positiveInteger : PositiveDigit Digit*;
+seasonQualified : season '^' seasonQualifier;
+seasonQualifier : QualifyingString;
+dateWithPartialUncertainty
+    : partialUncertainOrApproximate
+    | partialUnspecified;
 
 //QualifyingString : [a-zA-Z0-9]+;
+QualifyingString : 'asdf';

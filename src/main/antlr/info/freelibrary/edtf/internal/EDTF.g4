@@ -45,7 +45,6 @@ MonthDay
     | '02' Dash OneThru29
     ;
 
-YearMonth : Year Dash Month;
 YearMonthDay : Year Dash MonthDay;
 Day : OneThru31;
 
@@ -76,7 +75,7 @@ ZOffset : OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59;
 // ***********************   Level 0: Parser Rules   ************************ //
 
 level0Expression : date | dateTime | level0Interval;
-date : Year | YearMonth | YearMonthDay;
+date : Year | Year Dash Month | YearMonthDay;
 dateTime : YearMonthDay T Time (Z | (Plus | Dash) ZOffset)?;
 
 // *******************  Level 0: Interval Parser Rules  ********************* //
@@ -95,25 +94,27 @@ Unknown : 'unknown';
 QuestionMarkTilde : '?~';
 
 YearWithOneOrTwoUnspecifedDigits : Digit Digit (Digit | U) U;
-LongYearSimple : Y Dash? PositiveDigit Digit Digit Digit Digit+;
+LongYearSimpleForm : Y Dash? PositiveDigit Digit Digit Digit Digit+;
 
 // *************************  Level 1: Parser Rules  ************************ //
 
 level1Expression
     : uncertainOrApproxDate
-    | unspecified
+    | unspecifiedDate
     | level1Interval
-    | LongYearSimple
+    | longYearSimpleForm
     | season;
 
-unspecified
-    : YearWithOneOrTwoUnspecifedDigits
+unspecifiedDate
+    : yearUnspecified
     | monthUnspecified
     | dayUnspecified
     | dayAndMonthUnspecified;
 
+longYearSimpleForm : LongYearSimpleForm;
+yearUnspecified : YearWithOneOrTwoUnspecifedDigits;
 monthUnspecified : Year Dash UU;
-dayUnspecified : YearMonth Dash UU;
+dayUnspecified : Year Dash Month Dash UU;
 uncertainOrApproxDate : date uaSymbol;
 dayAndMonthUnspecified : Year Dash UU Dash UU;
 
@@ -122,10 +123,8 @@ uaSymbol : QuestionMark | Tilde | QuestionMarkTilde;
 
 // *******************  Level 1: Interval Parser Rules  ********************* //
 
-level1Interval : level1DateOrSeason Slash level1End;
-level1DateOrSeason : (date | season) uaSymbol? | Unknown;
-level1End : level1DateOrSeason | Open;
-dateOrSeason : date | season;
+level1Interval : dateOrSeason Slash (dateOrSeason | Open);
+dateOrSeason : (date | season) uaSymbol? | Unknown;
 
 // **************************   Level 2: Tokens   *************************** //
 
@@ -164,9 +163,9 @@ iuaBase
     | Year uaSymbol Dash MonthDay uaSymbol?
     | Year uaSymbol? Dash partialMonth uaSymbol Dash Day
     //| Year uaSymbol? Dash partialMonth uaSymbol (Dash partialDay uaSymbol)? // works
-    | YearMonth uaSymbol Dash partialDay uaSymbol
-    | YearMonth uaSymbol Dash Day
-    | YearMonth Dash partialDay uaSymbol // next one(?)
+    | Year Dash Month uaSymbol Dash partialDay uaSymbol
+    | Year Dash Month uaSymbol Dash Day
+    | Year Dash Month Dash partialDay uaSymbol // next one(?)
     | Year Dash partialMonthDay uaSymbol
     | season uaSymbol
     ;
@@ -203,13 +202,13 @@ listElement
     : date
     | dateWithPartialUncertainty
     | uncertainOrApproxDate
-    | unspecified
+    | unspecifiedDate
     | consecutives;
 earlier : DotDot date;
 later : date DotDot;
 consecutives
     : YearMonthDay DotDot YearMonthDay
-    | YearMonth DotDot YearMonth
+    | Year Dash Month DotDot Year Dash Month
     | Year DotDot Year;
 maskedPrecision : Digit Digit (Digit X | XX );
 

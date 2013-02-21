@@ -1,5 +1,7 @@
 package info.freelibrary.edtf;
 
+import java.util.Iterator;
+
 import info.freelibrary.edtf.internal.EDTFLexer;
 import info.freelibrary.edtf.internal.EDTFParser;
 import info.freelibrary.edtf.internal.EDTFParseListener;
@@ -9,6 +11,7 @@ import info.freelibrary.util.StringUtils;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -43,47 +46,44 @@ public class DateTimeParser {
 		EDTFLexer lexer = new EDTFLexer(new ANTLRInputStream(aEDTFString));
 		EDTFParser parser = new EDTFParser(new CommonTokenStream(lexer));
 		ParseTreeWalker walker = new ParseTreeWalker();
-		
-		//LOGGER.debug(StringUtils.toString(lexer.getTokenNames(), '|'));
-		
-		parser.removeErrorListeners(); // remove generic System.err listener
+
 		lexer.removeErrorListeners(); // remove generic System.err listener
-		lexer.addErrorListener(new ParserErrorListener(parser)); // add ours
-		
+
+		if (LOGGER.isDebugEnabled()) {
+			StringBuilder strBuffer = new StringBuilder(aEDTFString + " => ");
+			Iterator<? extends Token> iter = lexer.getAllTokens().iterator();
+
+			while (iter.hasNext()) {
+				strBuffer.append(lexer.tokenNames[iter.next().getType()]);
+				strBuffer.append(' ');
+			}
+
+			LOGGER.debug(strBuffer.insert(0, "Lexer tokens: ").toString());
+			lexer.reset();
+		}
+
+		// Wait to add our ErrorListener until we're ready to parse for real
+		lexer.addErrorListener(new ParserErrorListener(parser));
+		parser.removeErrorListeners(); // remove generic System.err listener
+
 		ParseTree tree = parser.edtf();
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Parse tree: " + tree.toStringTree(parser));
 		}
-		
+
 		walker.walk(new EDTFParseListener(parser), tree);
-		
+
 		if (parser.getNumberOfSyntaxErrors() > 0) {
-			String parsedEDTF = tree.getText();
-			String message;
-
-			if (parsedEDTF != null && parsedEDTF.length() > 0) {
-				message = StringUtils.formatMessage(
-						"Parse of '{}' failed after '{}'", new String[] {
-								aEDTFString, parsedEDTF });
-				LOGGER.error(message);
-			}
-			else {
-				message = "Parse of '{}' failed completely";
-				LOGGER.error(message);
-			}
-
-			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("===============================================");
+			String message = "Parse of '{}' failed";
+			
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn(message, aEDTFString);
 			}
 
 			throw new SyntaxException(message);
 		}
 		else {
-			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("===============================================");
-			}
-			
 			return (EDTF) new LocalDateTime();
 		}
 	}

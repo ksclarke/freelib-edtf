@@ -34,15 +34,15 @@ public class EDTFParseListener extends EDTFBaseListener {
 		myParser = aParser;
 	}
 
-	@Override
-	public void enterLevel0Expression(Level0ExpressionContext aContext) {
-		EXPRESSION_LEVEL = LEVEL0EXPRESSION;
-	}
+//	@Override
+//	public void enterLevel0Expression(Level0ExpressionContext aContext) {
+//		EXPRESSION_LEVEL = LEVEL0EXPRESSION;
+//	}
 
-	@Override
-	public void enterLevel1Expression(Level1ExpressionContext aContext) {
-		EXPRESSION_LEVEL = LEVEL1EXPRESSION;
-	}
+//	@Override
+//	public void enterLevel1Expression(Level1ExpressionContext aContext) {
+//		EXPRESSION_LEVEL = LEVEL1EXPRESSION;
+//	}
 	
 //	@Override
 //	public void enterLevel2Expression(Level2ExpressionContext aContext) {

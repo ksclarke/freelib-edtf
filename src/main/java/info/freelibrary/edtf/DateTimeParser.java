@@ -7,8 +7,6 @@ import info.freelibrary.edtf.internal.EDTFParser;
 import info.freelibrary.edtf.internal.EDTFParseListener;
 import info.freelibrary.edtf.internal.ParserErrorListener;
 
-import info.freelibrary.util.StringUtils;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -54,7 +52,7 @@ public class DateTimeParser {
 			Iterator<? extends Token> iter = lexer.getAllTokens().iterator();
 
 			while (iter.hasNext()) {
-				strBuffer.append(lexer.tokenNames[iter.next().getType()]);
+				strBuffer.append(EDTFLexer.tokenNames[iter.next().getType()]);
 				strBuffer.append(' ');
 			}
 

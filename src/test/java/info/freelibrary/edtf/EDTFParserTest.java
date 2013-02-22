@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 public class EDTFParserTest {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(EDTFParserTest.class);
-	
 	private static DateTimeParser myParser;
 
 	@BeforeClass
@@ -26,6 +24,7 @@ public class EDTFParserTest {
 			myParser.parse("1991");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 
@@ -33,6 +32,7 @@ public class EDTFParserTest {
 			myParser.parse("0000");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -46,6 +46,7 @@ public class EDTFParserTest {
 			myParser.parse("-1000");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 	}
@@ -56,6 +57,7 @@ public class EDTFParserTest {
 			myParser.parse("1990-12");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -69,6 +71,7 @@ public class EDTFParserTest {
 			myParser.parse("-1993-12");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -91,6 +94,7 @@ public class EDTFParserTest {
 			myParser.parse("1992-12-12");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -98,6 +102,7 @@ public class EDTFParserTest {
 			myParser.parse("-1993-12-01");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -126,6 +131,7 @@ public class EDTFParserTest {
 			myParser.parse("2001-02-03T09:30:01");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -133,6 +139,7 @@ public class EDTFParserTest {
 			myParser.parse("-2007-02-03T09:30:01");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -158,6 +165,7 @@ public class EDTFParserTest {
 			myParser.parse("1998-01-03T09:30:01Z");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -171,6 +179,7 @@ public class EDTFParserTest {
 			myParser.parse("1893-01-03T24:00:00");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -178,6 +187,7 @@ public class EDTFParserTest {
 			myParser.parse("1883-01-03T24:00:00+01:59");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -185,6 +195,7 @@ public class EDTFParserTest {
 			myParser.parse("1883-01-03T24:00:00+14:00");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -192,6 +203,7 @@ public class EDTFParserTest {
 			myParser.parse("1883-01-03T24:00:00-14:00");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 		
@@ -199,51 +211,73 @@ public class EDTFParserTest {
 			myParser.parse("1883-01-03T24:00:00-00:45");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 	}
 	
 	@Test
-	public void level0IntervalTest() {
+	public void level0IntervalTestYMDYM() {
 		try {
 			myParser.parse("2004-02-01/2005-02");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+
+	@Test
+	public void level0IntervalTestYMDYMD() {
 		try {
 			myParser.parse("2004-02-01/2005-02-08");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+
+	@Test
+	public void level0IntervalTestYMYM() {
 		try {
 			myParser.parse("2004-06/2006-08");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level0IntervalTestYY() {
 		try {
 			myParser.parse("1964/2008");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level0IntervalTestYMDY() {
 		try {
 			myParser.parse("2004-02-01/2005");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level0IntervalTestYYM() {
 		try {
 			myParser.parse("2005/2006-02");
 		}
 		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
 	}
@@ -467,6 +501,13 @@ public class EDTFParserTest {
 		
 		try {
 			myParser.parse("1984-06-02?/unknown");
+		}
+		catch (SyntaxException details) {
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("unknown/2013-21");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());

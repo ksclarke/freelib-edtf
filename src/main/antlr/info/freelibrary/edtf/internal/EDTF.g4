@@ -79,7 +79,7 @@ dateTime : YearMonthDay T Time (Z | (Plus | Dash) ZOffset)?;
 
 // *******************  Level 0: Interval Parser Rules  ********************* //
 
-level0Interval : date Slash date;
+level0Interval : (Year | Year Dash Month | YearMonthDay) Slash (Year | Year Dash Month | YearMonthDay);
 
 // ***************************   Level 1: Tokens   ************************** //
 
@@ -113,19 +113,38 @@ unspecifiedDate
     | dayUnspecified
     | dayAndMonthUnspecified;
 
-longYearSimpleForm : LongYearSimpleForm;
-yearUnspecified : YearWithOneUnspecifedDigit | YearWithTwoUnspecifedDigits;
 monthUnspecified : Year Dash UU;
+uncertainOrApproxDate : (Year | Year Dash Month | YearMonthDay) UASymbol;
+longYearSimpleForm : LongYearSimpleForm;
 dayUnspecified : Year Dash Month Dash UU;
-uncertainOrApproxDate : date uaSymbol;
 dayAndMonthUnspecified : Year Dash UU Dash UU;
-uaSymbol : UASymbol;
+yearUnspecified : YearWithOneUnspecifedDigit | YearWithTwoUnspecifedDigits;
+
+// Keeps our parse levels consistent with the least amount of added structure
+open : Open;
 season : Season;
+unknown : Unknown;
+uaSymbol : UASymbol;
 
 // *******************  Level 1: Interval Parser Rules  ********************* //
 
-level1Interval : dateOrSeason Slash (dateOrSeason | Open);
-dateOrSeason : (date uaSymbol? | Season UASymbol?) | Unknown;
+level1Interval : (dateOrSeason | unknown) Slash (dateOrSeason | unknown | open);
+dateOrSeason
+	: Year UASymbol?
+	| Season UASymbol?
+	| Year Dash Month UASymbol?
+	| YearMonthDay UASymbol?
+	;
+
+//level1Interval
+//	: Year UASymbol Slash Year
+//	| Year Slash Year UASymbol
+//	| Year UASymbol Slash Year UASymbol
+//	| Year UASymbol Slash Year Dash Month
+//	| Year Slash Year Dash Month UASymbol
+//	| Year UASymbol Slash Year Dash Month UASymbol
+//	| Season UASymbol Slash Season
+	
 
 // **************************   Level 2: Tokens   *************************** //
 
@@ -139,19 +158,6 @@ CloseBrace : '}';
 CloseParen : ')';
 OpenBracket : '[';
 CloseBracket : ']';
-
-// ***********************   Level 2: Parser Rules   ************************ //
-
-level2Expression
-    : partialUncertainOrApproximate
-//    | partialUnspecified
-//    | choiceList
-//    | inclusiveList
-//    | maskedPrecision
-//    | l2Interval
-//    | longYearScientific
-//    | SeasonQualified
-    ;
 
 MonthDayKnownYearUA : Year UASymbol Dash MonthDay UASymbol?;
 MonthDayKnownYearUAParenUA : OpenParen MonthDayKnownYearUA CloseParen UASymbol;
@@ -180,6 +186,19 @@ YearMonthDayUAParenUA : OpenParen YearMonthDayUA CloseParen UASymbol;
 MonthKnownYearUA : Year UASymbol Dash Month;
 MonthKnownYearUAParenUA : OpenParen MonthKnownYearUA CloseParen UASymbol;
 SeasonUA : Season UASymbol;
+
+// ***********************   Level 2: Parser Rules   ************************ //
+
+level2Expression
+    : partialUncertainOrApproximate
+//    | partialUnspecified
+//    | choiceList
+//    | inclusiveList
+//    | maskedPrecision
+//    | l2Interval
+//    | longYearScientific
+//    | SeasonQualified
+    ;
 
 partialUncertainOrApproximate
 	: MonthDayKnownYearUA

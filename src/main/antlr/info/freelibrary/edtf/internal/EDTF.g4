@@ -94,7 +94,8 @@ QuestionMarkTilde : '?~';
 
 Season : Year Dash ('21' | '22' | '23' | '24');
 UASymbol : QuestionMark | Tilde | QuestionMarkTilde;
-YearWithOneOrTwoUnspecifedDigits : Digit Digit (Digit | U) U;
+YearWithOneUnspecifedDigit : Digit Digit Digit U;
+YearWithTwoUnspecifedDigits : Digit Digit U U;
 LongYearSimpleForm : Y Dash? PositiveDigit Digit Digit Digit Digit+;
 
 // *************************  Level 1: Parser Rules  ************************ //
@@ -113,7 +114,7 @@ unspecifiedDate
     | dayAndMonthUnspecified;
 
 longYearSimpleForm : LongYearSimpleForm;
-yearUnspecified : YearWithOneOrTwoUnspecifedDigits;
+yearUnspecified : YearWithOneUnspecifedDigit | YearWithTwoUnspecifedDigits;
 monthUnspecified : Year Dash UU;
 dayUnspecified : Year Dash Month Dash UU;
 uncertainOrApproxDate : date uaSymbol;

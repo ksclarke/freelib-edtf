@@ -129,7 +129,6 @@ yearUnspecified : YearWithOneUnspecifedDigit | YearWithTwoUnspecifedDigits;
 open : Open;
 season : Season;
 unknown : Unknown;
-uaSymbol : UASymbol;
 
 // *******************  Level 1: Interval Parser Rules  ********************* //
 
@@ -140,7 +139,6 @@ dateOrSeason
 	| YearMonthUA | YearMonth
 	| YearMonthDayUA | YearMonthDay
 	;
-	
 
 // **************************   Level 2: Tokens   *************************** //
 
@@ -196,26 +194,16 @@ level2Expression
     ;
 
 partialUncertainOrApproximate
-	: MonthDayKnownYearUA
-	| MonthDayKnownYearUAParenUA
-	| MonthKnownYearDayUA
-	| MonthKnownYearDayUAParenUA
-	| YearDayKnownMonthUA
-	| YearDayKnownMonthUAParenUA
-	| YearMonthKnownDayUA
-	| YearMonthKnownDayUAParenUA
-	| YearKnownMonthDayUA
-	| YearKnownMonthDayUAParenUA
-	| DayKnownYearMonthUA
-	| DayKnownYearMonthUAParenUA
-	| YearKnownMonthUA
-	| YearKnownMonthUAParenUA
-	| Level2YearMonthUA
-	| Level2YearMonthUAParenUA
-	| Level2YearMonthDayUA
-	| Level2YearMonthDayUAParenUA
-	| MonthKnownYearUA
-	| MonthKnownYearUAParenUA
+	: MonthDayKnownYearUA | MonthDayKnownYearUAParenUA
+	| MonthKnownYearDayUA | MonthKnownYearDayUAParenUA
+	| YearDayKnownMonthUA | YearDayKnownMonthUAParenUA
+	| YearMonthKnownDayUA | YearMonthKnownDayUAParenUA
+	| YearKnownMonthDayUA | YearKnownMonthDayUAParenUA
+	| DayKnownYearMonthUA | DayKnownYearMonthUAParenUA
+	| YearKnownMonthUA | YearKnownMonthUAParenUA
+	| Level2YearMonthUA	| Level2YearMonthUAParenUA
+	| Level2YearMonthDayUA | Level2YearMonthDayUAParenUA
+	| MonthKnownYearUA | MonthKnownYearUAParenUA
     | SeasonUA
     ;
 

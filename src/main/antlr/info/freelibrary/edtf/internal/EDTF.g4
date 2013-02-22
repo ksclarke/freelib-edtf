@@ -44,7 +44,7 @@ MonthDay
     | ( '04' | '06' | '09' | '11' ) Dash OneThru30
     | '02' Dash OneThru29
     ;
-
+YearMonth : Year Dash Month;
 YearMonthDay : Year Dash MonthDay;
 Day : OneThru31;
 Hour : ZeroThru23;
@@ -74,12 +74,12 @@ ZOffset : OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59;
 // ***********************   Level 0: Parser Rules   ************************ //
 
 level0Expression : date | dateTime | level0Interval;
-date : Year | Year Dash Month | YearMonthDay;
+date : Year | YearMonth | YearMonthDay;
 dateTime : YearMonthDay T Time (Z | (Plus | Dash) ZOffset)?;
 
 // *******************  Level 0: Interval Parser Rules  ********************* //
 
-level0Interval : (Year | Year Dash Month | YearMonthDay) Slash (Year | Year Dash Month | YearMonthDay);
+level0Interval : date Slash date;
 
 // ***************************   Level 1: Tokens   ************************** //
 
@@ -91,6 +91,11 @@ Open : 'open';
 QuestionMark : '?';
 Unknown : 'unknown';
 QuestionMarkTilde : '?~';
+
+YearUA : Year UASymbol;
+SeasonUA : Season UASymbol;
+YearMonthUA : YearMonth UASymbol;
+YearMonthDayUA : YearMonthDay UASymbol;
 
 Season : Year Dash ('21' | '22' | '23' | '24');
 UASymbol : QuestionMark | Tilde | QuestionMarkTilde;
@@ -114,9 +119,9 @@ unspecifiedDate
     | dayAndMonthUnspecified;
 
 monthUnspecified : Year Dash UU;
-uncertainOrApproxDate : (Year | Year Dash Month | YearMonthDay) UASymbol;
+uncertainOrApproxDate : YearUA | YearMonthUA | YearMonthDayUA;
 longYearSimpleForm : LongYearSimpleForm;
-dayUnspecified : Year Dash Month Dash UU;
+dayUnspecified : YearMonth Dash UU;
 dayAndMonthUnspecified : Year Dash UU Dash UU;
 yearUnspecified : YearWithOneUnspecifedDigit | YearWithTwoUnspecifedDigits;
 
@@ -130,20 +135,11 @@ uaSymbol : UASymbol;
 
 level1Interval : (dateOrSeason | unknown) Slash (dateOrSeason | unknown | open);
 dateOrSeason
-	: Year UASymbol?
-	| Season UASymbol?
-	| Year Dash Month UASymbol?
-	| YearMonthDay UASymbol?
+	: YearUA | Year
+	| SeasonUA | Season
+	| YearMonthUA | YearMonth
+	| YearMonthDayUA | YearMonthDay
 	;
-
-//level1Interval
-//	: Year UASymbol Slash Year
-//	| Year Slash Year UASymbol
-//	| Year UASymbol Slash Year UASymbol
-//	| Year UASymbol Slash Year Dash Month
-//	| Year Slash Year Dash Month UASymbol
-//	| Year UASymbol Slash Year Dash Month UASymbol
-//	| Season UASymbol Slash Season
 	
 
 // **************************   Level 2: Tokens   *************************** //
@@ -170,22 +166,21 @@ YearKnownMonthDayUA
 	| OpenParen Year CloseParen Dash MonthDay UASymbol
 	;
 YearKnownMonthDayUAParenUA : OpenParen YearKnownMonthDayUA CloseParen UASymbol;
-YearMonthKnownDayUA : Year Dash Month Dash OpenParen Day CloseParen UASymbol;
+YearMonthKnownDayUA : YearMonth Dash OpenParen Day CloseParen UASymbol;
 YearMonthKnownDayUAParenUA : OpenParen YearMonthKnownDayUA CloseParen UASymbol;
 DayKnownYearMonthUA
-	: Year Dash Month UASymbol Dash Day
+	: YearMonth UASymbol Dash Day
 	| Year UASymbol Dash Month UASymbol Dash Day
 	;
 DayKnownYearMonthUAParenUA : OpenParen DayKnownYearMonthUA CloseParen UASymbol;
 YearKnownMonthUA : Year Dash OpenParen Month CloseParen UASymbol;
 YearKnownMonthUAParenUA : OpenParen YearKnownMonthUA CloseParen UASymbol;
-YearMonthUA : Year UASymbol Dash OpenParen Month CloseParen UASymbol;
-YearMonthUAParenUA : OpenParen YearMonthUA CloseParen UASymbol;
-YearMonthDayUA : OpenParen Year CloseParen UASymbol Dash Month Dash Day UASymbol;
-YearMonthDayUAParenUA : OpenParen YearMonthDayUA CloseParen UASymbol;
+Level2YearMonthUA : Year UASymbol Dash OpenParen Month CloseParen UASymbol;
+Level2YearMonthUAParenUA : OpenParen YearMonthUA CloseParen UASymbol;
+Level2YearMonthDayUA : OpenParen Year CloseParen UASymbol Dash Month Dash Day UASymbol;
+Level2YearMonthDayUAParenUA : OpenParen YearMonthDayUA CloseParen UASymbol;
 MonthKnownYearUA : Year UASymbol Dash Month;
 MonthKnownYearUAParenUA : OpenParen MonthKnownYearUA CloseParen UASymbol;
-SeasonUA : Season UASymbol;
 
 // ***********************   Level 2: Parser Rules   ************************ //
 
@@ -215,10 +210,10 @@ partialUncertainOrApproximate
 	| DayKnownYearMonthUAParenUA
 	| YearKnownMonthUA
 	| YearKnownMonthUAParenUA
-	| YearMonthUA
-	| YearMonthUAParenUA
-	| YearMonthDayUA
-	| YearMonthDayUAParenUA
+	| Level2YearMonthUA
+	| Level2YearMonthUAParenUA
+	| Level2YearMonthDayUA
+	| Level2YearMonthDayUAParenUA
 	| MonthKnownYearUA
 	| MonthKnownYearUAParenUA
     | SeasonUA
@@ -260,7 +255,7 @@ earlier : DotDot date;
 later : date DotDot;
 consecutives
     : YearMonthDay DotDot YearMonthDay
-    | Year Dash Month DotDot Year Dash Month
+    | YearMonth DotDot YearMonth
     | Year DotDot Year;
 maskedPrecision : Digit Digit (Digit X | XX );
 

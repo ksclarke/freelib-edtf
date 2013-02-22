@@ -8,7 +8,7 @@
  *
  * Author: Kevin S. Clarke (ksclarke@gmail.com)
  * Created: 2013/02/06
- * Updated: 2013/02/16
+ * Updated: 2013/02/22
  *
  * License: BSD 2-Clause http://github.com/ksclarke/freelib-edtf/LICENSE
  */
@@ -47,7 +47,6 @@ MonthDay
 
 YearMonthDay : Year Dash MonthDay;
 Day : OneThru31;
-
 Hour : ZeroThru23;
 Minute : ZeroThru59;
 Second : ZeroThru59;
@@ -93,6 +92,8 @@ QuestionMark : '?';
 Unknown : 'unknown';
 QuestionMarkTilde : '?~';
 
+Season : Year Dash ('21' | '22' | '23' | '24');
+UASymbol : QuestionMark | Tilde | QuestionMarkTilde;
 YearWithOneOrTwoUnspecifedDigits : Digit Digit (Digit | U) U;
 LongYearSimpleForm : Y Dash? PositiveDigit Digit Digit Digit Digit+;
 
@@ -117,14 +118,13 @@ monthUnspecified : Year Dash UU;
 dayUnspecified : Year Dash Month Dash UU;
 uncertainOrApproxDate : date uaSymbol;
 dayAndMonthUnspecified : Year Dash UU Dash UU;
-
-season : Year Dash ('21' | '22' | '23' | '24');
-uaSymbol : QuestionMark | Tilde | QuestionMarkTilde;
+uaSymbol : UASymbol;
+season : Season;
 
 // *******************  Level 1: Interval Parser Rules  ********************* //
 
 level1Interval : dateOrSeason Slash (dateOrSeason | Open);
-dateOrSeason : (date | season) uaSymbol? | Unknown;
+dateOrSeason : (date uaSymbol? | Season UASymbol?) | Unknown;
 
 // **************************   Level 2: Tokens   *************************** //
 
@@ -139,10 +139,6 @@ CloseParen : ')';
 OpenBracket : '[';
 CloseBracket : ']';
 
-partialDay : OpenParen Day CloseParen;
-partialMonthDay : OpenParen MonthDay CloseParen;
-partialMonth : OpenParen Month CloseParen;
-
 // ***********************   Level 2: Parser Rules   ************************ //
 
 level2Expression
@@ -153,24 +149,60 @@ level2Expression
 //    | maskedPrecision
 //    | l2Interval
 //    | longYearScientific
-//    | seasonQualified
+//    | SeasonQualified
     ;
 
-partialUncertainOrApproximate : iuaBase | OpenParen iuaBase CloseParen uaSymbol;
+MonthDayKnownYearUA : Year UASymbol Dash MonthDay UASymbol?;
+MonthDayKnownYearUAParenUA : OpenParen MonthDayKnownYearUA CloseParen UASymbol;
+MonthKnownYearDayUA : Year UASymbol Dash Month Dash OpenParen Day CloseParen UASymbol;
+MonthKnownYearDayUAParenUA : OpenParen MonthKnownYearDayUA CloseParen UASymbol;
+YearDayKnownMonthUA : Year Dash OpenParen Month CloseParen UASymbol Dash Day;
+YearDayKnownMonthUAParenUA : OpenParen YearDayKnownMonthUA CloseParen UASymbol;
+YearKnownMonthDayUA
+	: Year Dash OpenParen MonthDay CloseParen UASymbol
+	| OpenParen Year CloseParen Dash MonthDay UASymbol
+	;
+YearKnownMonthDayUAParenUA : OpenParen YearKnownMonthDayUA CloseParen UASymbol;
+YearMonthKnownDayUA : Year Dash Month Dash OpenParen Day CloseParen UASymbol;
+YearMonthKnownDayUAParenUA : OpenParen YearMonthKnownDayUA CloseParen UASymbol;
+DayKnownYearMonthUA
+	: Year Dash Month UASymbol Dash Day
+	| Year UASymbol Dash Month UASymbol Dash Day
+	;
+DayKnownYearMonthUAParenUA : OpenParen DayKnownYearMonthUA CloseParen UASymbol;
+YearKnownMonthUA : Year Dash OpenParen Month CloseParen UASymbol;
+YearKnownMonthUAParenUA : OpenParen YearKnownMonthUA CloseParen UASymbol;
+YearMonthUA : Year UASymbol Dash OpenParen Month CloseParen UASymbol;
+YearMonthUAParenUA : OpenParen YearMonthUA CloseParen UASymbol;
+YearMonthDayUA : OpenParen Year CloseParen UASymbol Dash Month Dash Day UASymbol;
+YearMonthDayUAParenUA : OpenParen YearMonthDayUA CloseParen UASymbol;
+MonthKnownYearUA : Year UASymbol Dash Month;
+MonthKnownYearUAParenUA : OpenParen MonthKnownYearUA CloseParen UASymbol;
+SeasonUA : Season UASymbol;
 
-iuaBase
-    : Year uaSymbol Dash Month (Dash partialDay uaSymbol)?
-    | Year uaSymbol Dash MonthDay uaSymbol?
-    | Year uaSymbol? Dash partialMonth uaSymbol Dash Day
-    //| Year uaSymbol? Dash partialMonth uaSymbol (Dash partialDay uaSymbol)? // works
-    | Year Dash Month uaSymbol Dash partialDay uaSymbol
-    | Year Dash Month uaSymbol Dash Day
-    | Year Dash Month Dash partialDay uaSymbol // next one(?)
-    | Year Dash partialMonthDay uaSymbol
-    | season uaSymbol
+partialUncertainOrApproximate
+	: MonthDayKnownYearUA
+	| MonthDayKnownYearUAParenUA
+	| MonthKnownYearDayUA
+	| MonthKnownYearDayUAParenUA
+	| YearDayKnownMonthUA
+	| YearDayKnownMonthUAParenUA
+	| YearMonthKnownDayUA
+	| YearMonthKnownDayUAParenUA
+	| YearKnownMonthDayUA
+	| YearKnownMonthDayUAParenUA
+	| DayKnownYearMonthUA
+	| DayKnownYearMonthUAParenUA
+	| YearKnownMonthUA
+	| YearKnownMonthUAParenUA
+	| YearMonthUA
+	| YearMonthUAParenUA
+	| YearMonthDayUA
+	| YearMonthDayUAParenUA
+	| MonthKnownYearUA
+	| MonthKnownYearUAParenUA
+    | SeasonUA
     ;
-
-// FIXME : PartialDay, etc., replaced above by their values (like PartialMonth)
 
 partialUnspecified : yearWithU | yearMonthWithU | yearMonthDayWithU;
 yearWithU
@@ -221,8 +253,7 @@ l2Interval
 longYearScientific
     : Y Dash? positiveInteger 'e' positiveInteger ('p' positiveInteger)?;
 positiveInteger : PositiveDigit Digit*;
-seasonQualified : season '^' seasonQualifier;
-seasonQualifier : QualifyingString;
+SeasonQualified : Season '^' QualifyingString;
 dateWithPartialUncertainty
     : partialUncertainOrApproximate
     | partialUnspecified;

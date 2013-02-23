@@ -1,0 +1,27 @@
+freelib-edtf (version 0.1.0-SNAPSHOT)   https://github.com/ksclarke/freelib-edtf
+
+
+================================================================================
+  INTRODUCTION
+================================================================================
+
+This is a Java library for working with dates, times, etc. that conform to the
+Extended Date Time Format (EDTF) standard (still in draft status).  It's still
+in an early stage of development, so probably isn't of much use yet.  I'll add
+more documentation once it's in a more stable/useful state.
+
+
+================================================================================
+  LICENSE
+================================================================================
+
+FreeLib-EDTF is released under the "Two-Clause BSD License" (included in the
+"LICENSE" file in the project directory).  The licenses of the software on
+which this library depends can be found in the project's "licenses" directory.
+
+
+================================================================================
+  CONTACT
+================================================================================
+
+Kevin S. Clarke <ksclarke@gmail.com>

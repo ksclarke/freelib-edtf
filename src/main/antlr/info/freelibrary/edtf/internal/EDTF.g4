@@ -144,7 +144,10 @@ dateOrSeason
 
 X : 'x';
 XX : 'xx';
+Zero : '0';
+OneU : '1u';
 Comma : ',';
+ZeroU : '0u';
 DotDot : '..';
 OpenParen : '(';
 OpenBrace : '{';
@@ -184,7 +187,7 @@ MonthKnownYearUAParenUA : OpenParen MonthKnownYearUA CloseParen UASymbol;
 
 level2Expression
     : partialUncertainOrApproximate
-//    | partialUnspecified
+    | partialUnspecified
 //    | choiceList
 //    | inclusiveList
 //    | maskedPrecision
@@ -211,8 +214,9 @@ partialUnspecified : yearWithU | yearMonthWithU | yearMonthDayWithU;
 yearWithU
     : U digitOrU digitOrU digitOrU
     | digitOrU U digitOrU digitOrU
-    | digitOrU  digitOrU U digitOrU
-    | digitOrU digitOrU digitOrU U;
+    | digitOrU digitOrU U digitOrU
+    | digitOrU digitOrU digitOrU U
+    ;
 yearMonthWithU : (Year | yearWithU) Dash monthWithU | yearWithU Dash Month;
 yearMonthDayWithU
     : (yearWithU | Year) Dash monthDayWithU
@@ -220,9 +224,9 @@ yearMonthDayWithU
 monthDayWithU
     : (Month | monthWithU) Dash dayWithU
     | monthWithU Dash Day;
-monthWithU : OneThru12 | '0u' | '1u' | (U digitOrU);
+monthWithU : OneThru12 | ZeroU | OneU | (U digitOrU);
 dayWithU : Day | U digitOrU | OneThru3 U;
-digitOrU : positiveDigitOrU | '0';
+digitOrU : positiveDigitOrU | Zero;
 positiveDigitOrU : PositiveDigit | U;
 OneThru3 : '1' | '2' | '3';
 

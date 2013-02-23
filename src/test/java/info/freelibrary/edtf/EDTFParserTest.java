@@ -665,4 +665,39 @@ public class EDTFParserTest {
 			fail(details.getMessage());
 		}
 	}
+	
+	@Test
+	public void level2PartialUnspecifiedTest() {
+		try {
+			myParser.parse("156u-12-25");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+//		
+//		try {
+//			myParser.parse("15uu-12-25");
+//		}
+//		catch (SyntaxException details) {
+//			details.printStackTrace(System.err);
+//			fail(details.getMessage());
+//		}
+//		
+//		try {
+//			myParser.parse("15uu-12-uu");
+//		}
+//		catch (SyntaxException details) {
+//			details.printStackTrace(System.err);
+//			fail(details.getMessage());
+//		}
+//		
+//		try {
+//			myParser.parse("1560-uu-25");
+//		}
+//		catch (SyntaxException details) {
+//			details.printStackTrace(System.err);
+//			fail(details.getMessage());
+//		}
+	}
 }

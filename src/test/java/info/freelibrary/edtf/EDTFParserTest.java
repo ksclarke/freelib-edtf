@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EDTFParserTest {
 	
@@ -15,8 +13,6 @@ public class EDTFParserTest {
 	public static void runBeforeClass() {
 		myParser = new DateTimeParser();
 	}
-
-// TODO Split out tests into more granular divisions (SeasonUA, YearMonthDayUA, etc.)
 	
 	@Test
 	public void level0YearTest() {
@@ -432,80 +428,113 @@ public class EDTFParserTest {
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
+		
+		try {
+			myParser.parse("2010-25");
+			fail("Failed to catch an invalid season value");
+		}
+		catch (SyntaxException details) {}
 	}
 	
 	@Test
-	public void level1IntervalTest() {
+	public void level1IntervalTestUnknownY() {
 		try {
 			myParser.parse("unknown/2006");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYMDUnknown() {
 		try {
 			myParser.parse("2004-06-01/unknown");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYMDOpen() {
 		try {
 			myParser.parse("2004-01-01/open");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYearuaYM() {
 		try {
 			myParser.parse("1984~/2004-06");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYYMua() {
 		try {
 			myParser.parse("1984/2004-06~");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYuaYua() {
 		try {
 			myParser.parse("1984~/2004~");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+
 		try {
 			myParser.parse("1984?/2004?~");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYMuaYMua() {		
 		try {
 			myParser.parse("1984-06?/2004-08?");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYMDuaYMDua() {
 		try {
 			myParser.parse("1984-06-02?/2004-08-08~");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestYMDuaUnknown() {
 		try {
 			myParser.parse("1984-06-02?/unknown");
 		}
 		catch (SyntaxException details) {
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level1IntervalTestUnknownYM() {
 		try {
 			myParser.parse("unknown/2013-21");
 		}
@@ -515,7 +544,7 @@ public class EDTFParserTest {
 	}
 	
 	@Test
-	public void level2PartialUncertainOrApproximateTest() {
+	public void level2PartialTestMDKnownYua() {
 		try { // Uncertain year; month, day known
 			myParser.parse("2004?-06-11");
 		}
@@ -523,7 +552,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level2PartialTestDKnownYMua() {
 		try { // Year and month are approximate; day known
 			myParser.parse("2004-06~-11");
 		}
@@ -531,7 +563,7 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+
 		try { // Uncertain month, year and day known
 			myParser.parse("2004-(06)?-11");
 		}
@@ -539,7 +571,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level2PartialTestYMKnownDua() {
 		try { // Day is approximate; year, month known
 			myParser.parse("2004-06-(11)~");
 		}
@@ -547,7 +582,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-
+	}
+	
+	@Test
+	public void level2PartialTestYKnownMua() {
 		try { // Year known, month within year is approximate and uncertain
 			myParser.parse("2004-(06)?~");
 		}
@@ -555,7 +593,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-
+	}
+	
+	@Test
+	public void level2PartialTestYKnownMDua() {
 		try { // Year known, month and day uncertain
 			myParser.parse("2004-(06-11)?");
 		}
@@ -564,6 +605,17 @@ public class EDTFParserTest {
 			fail(details.getMessage());
 		}
 
+		try { // Year known, month and day approximate
+			myParser.parse("(2011)-06-04~");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level2PartialTestMKnownYDua() {
 		try { // Year uncertain, month known, day approximate
 			myParser.parse("2004?-06-(11)~");
 		}
@@ -571,7 +623,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level2PartialTestYMUa() {
 		try { // Year uncertain and month is both uncertain and approximate
 			myParser.parse("(2004-(06)~)?");
 		}
@@ -587,7 +642,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
+	}
+	
+	@Test
+	public void level2PartialTestYMDua() {
 		try { // Year uncertain, month and day approximate
 			myParser.parse("(2004)?-06-04~");
 		}
@@ -595,23 +653,10 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-		
-		try { // Year known, month and day approximate
-			myParser.parse("(2011)-06-04~");
-		}
-		catch (SyntaxException details) {
-			details.printStackTrace(System.err);
-			fail(details.getMessage());
-		}
-		
-		try { // Year known, month and day approximate
-			myParser.parse("2011-(06-04)~");
-		}
-		catch (SyntaxException details) {
-			details.printStackTrace(System.err);
-			fail(details.getMessage());
-		}
-		
+	}
+	
+	@Test
+	public void level2PartialTestSeason() {		
 		try { // Approximate season (around Autumn 2011)
 			myParser.parse("2011-23~");
 		}

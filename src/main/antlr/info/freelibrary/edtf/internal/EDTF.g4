@@ -182,6 +182,33 @@ Level2YearMonthDayUA : OpenParen Year CloseParen UASymbol Dash Month Dash Day UA
 Level2YearMonthDayUAParenUA : OpenParen YearMonthDayUA CloseParen UASymbol;
 MonthKnownYearUA : Year UASymbol Dash Month;
 MonthKnownYearUAParenUA : OpenParen MonthKnownYearUA CloseParen UASymbol;
+YearWithU
+    : U DigitOrU DigitOrU DigitOrU
+    | DigitOrU U DigitOrU DigitOrU
+    | DigitOrU DigitOrU U DigitOrU
+    | DigitOrU DigitOrU DigitOrU U
+    ;
+YearMonthWithU : (Year | YearWithU) Dash MonthWithU | YearWithU Dash Month;
+MonthWithU : ZeroU | OneU | U DigitOrU;
+DayWithU : U DigitOrU | OneThru3 U;
+YearMonthDayWithU
+	: YearWithU Dash Month Dash DayWithU
+	| YearWithU Dash Month Dash Day
+	| YearWithU Dash MonthWithU Dash DayWithU
+	| YearWithU Dash MonthWithU Dash Day
+	| Year Dash MonthWithU Dash Day
+	| Year Dash MonthWithU Dash DayWithU
+	| Year Dash Month Dash DayWithU
+	;
+DigitOrU : PositiveDigitOrU | Zero;
+PositiveDigitOrU : PositiveDigit | U;
+OneThru3 : '1' | '2' | '3';
+SeasonQualified : Season '^' .+;
+MaskedPrecision : Digit Digit (Digit X | XX );
+PositiveInteger : PositiveDigit Digit*;
+LongYearScientific
+	: Y Dash? PositiveInteger 'e' PositiveInteger ('p' PositiveInteger)?
+	;
 
 // ***********************   Level 2: Parser Rules   ************************ //
 
@@ -190,10 +217,10 @@ level2Expression
     | partialUnspecified
 //    | choiceList
 //    | inclusiveList
-//    | maskedPrecision
+    | maskedPrecision
 //    | l2Interval
-//    | longYearScientific
-//    | SeasonQualified
+    | longYearScientific
+    | seasonQualified
     ;
 
 partialUncertainOrApproximate
@@ -210,25 +237,10 @@ partialUncertainOrApproximate
     | SeasonUA
     ;
 
-partialUnspecified : yearWithU | yearMonthWithU | yearMonthDayWithU;
-yearWithU
-    : U digitOrU digitOrU digitOrU
-    | digitOrU U digitOrU digitOrU
-    | digitOrU digitOrU U digitOrU
-    | digitOrU digitOrU digitOrU U
-    ;
-yearMonthWithU : (Year | yearWithU) Dash monthWithU | yearWithU Dash Month;
-yearMonthDayWithU
-    : (yearWithU | Year) Dash monthDayWithU
-    | yearWithU Dash MonthDay;
-monthDayWithU
-    : (Month | monthWithU) Dash dayWithU
-    | monthWithU Dash Day;
-monthWithU : OneThru12 | ZeroU | OneU | (U digitOrU);
-dayWithU : Day | U digitOrU | OneThru3 U;
-digitOrU : positiveDigitOrU | Zero;
-positiveDigitOrU : PositiveDigit | U;
-OneThru3 : '1' | '2' | '3';
+partialUnspecified : YearWithU | YearMonthWithU | YearMonthDayWithU;
+longYearScientific : LongYearScientific;
+seasonQualified : SeasonQualified;
+maskedPrecision : MaskedPrecision;
 
 choiceList : OpenBracket listContent CloseBracket;
 inclusiveList : OpenBrace listContent CloseBrace;
@@ -249,7 +261,6 @@ consecutives
     : YearMonthDay DotDot YearMonthDay
     | YearMonth DotDot YearMonth
     | Year DotDot Year;
-maskedPrecision : Digit Digit (Digit X | XX );
 
 // ********************  Level 2: Interval Parser Rules  ******************** //
 
@@ -257,13 +268,7 @@ l2Interval
     : dateOrSeason Slash dateWithPartialUncertainty
     | dateWithPartialUncertainty Slash dateOrSeason
     | dateWithPartialUncertainty Slash dateWithPartialUncertainty;
-longYearScientific
-    : Y Dash? positiveInteger 'e' positiveInteger ('p' positiveInteger)?;
-positiveInteger : PositiveDigit Digit*;
-SeasonQualified : Season '^' QualifyingString;
+
 dateWithPartialUncertainty
     : partialUncertainOrApproximate
     | partialUnspecified;
-
-//QualifyingString : [a-zA-Z0-9]+;
-QualifyingString : 'asdf';

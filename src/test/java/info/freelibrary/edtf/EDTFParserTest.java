@@ -675,29 +675,94 @@ public class EDTFParserTest {
 			details.printStackTrace(System.err);
 			fail(details.getMessage());
 		}
-//		
-//		try {
-//			myParser.parse("15uu-12-25");
-//		}
-//		catch (SyntaxException details) {
-//			details.printStackTrace(System.err);
-//			fail(details.getMessage());
-//		}
-//		
-//		try {
-//			myParser.parse("15uu-12-uu");
-//		}
-//		catch (SyntaxException details) {
-//			details.printStackTrace(System.err);
-//			fail(details.getMessage());
-//		}
-//		
-//		try {
-//			myParser.parse("1560-uu-25");
-//		}
-//		catch (SyntaxException details) {
-//			details.printStackTrace(System.err);
-//			fail(details.getMessage());
-//		}
+		
+		try {
+			myParser.parse("15uu-12-25");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("15uu-12-uu");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("1560-uu-25");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level2LongYearScientificTest() {
+		try {
+			myParser.parse("y17e7");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("y-17e7");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("y17101e4p3");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level2SeasonQualifiedTest() {
+		try {
+			myParser.parse("2001-21^southernHemisphere");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2001-21^Southern Hemisphere");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level2MaskedPrecisionTest() {
+		try {
+			myParser.parse("196x");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+
+		try {
+			myParser.parse("19xx");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
 	}
 }

@@ -1,14 +1,11 @@
 /**
- * This is an Antlr4 grammar for the Extended Date Time Format (EDTF)
- *
- * It's my first experience with Antlr so I'm sure there are many many
- * ways that it could be improved...
- *
+ * This is an Antlr4 grammar for the Extended Date Time Format (EDTF).
  * EDTF specification website: http://www.loc.gov/standards/datetime/
+ * Version of the spec supported: Draft Submission, updated September 10, 2012
  *
  * Author: Kevin S. Clarke (ksclarke@gmail.com)
  * Created: 2013/02/06
- * Updated: 2013/02/24
+ * Updated: 2013/02/23
  *
  * License: BSD 2-Clause http://github.com/ksclarke/freelib-edtf/LICENSE
  */
@@ -34,9 +31,9 @@ PositiveYear
     | Digit Digit PositiveDigit Digit
     | Digit Digit Digit PositiveDigit
     ;
-YearZero : '0000';
 Digit : PositiveDigit | '0';
 PositiveDigit : '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+YearZero : '0000';
 Month : OneThru12;
 MonthDay
     : ( '01' | '03' | '05' | '07' | '08' | '10' | '12' ) Dash OneThru31
@@ -159,7 +156,9 @@ CloseBracket : ']';
 
 MonthDayKnownYearUA : Year UASymbol Dash MonthDay UASymbol?;
 MonthDayKnownYearUAParenUA : OpenParen MonthDayKnownYearUA CloseParen UASymbol;
-MonthKnownYearDayUA : Year UASymbol Dash Month Dash OpenParen Day CloseParen UASymbol;
+MonthKnownYearDayUA
+	: Year UASymbol Dash Month Dash OpenParen Day CloseParen UASymbol
+	;
 MonthKnownYearDayUAParenUA : OpenParen MonthKnownYearDayUA CloseParen UASymbol;
 YearDayKnownMonthUA : Year Dash OpenParen Month CloseParen UASymbol Dash Day;
 YearDayKnownMonthUAParenUA : OpenParen YearDayKnownMonthUA CloseParen UASymbol;
@@ -179,7 +178,9 @@ YearKnownMonthUA : Year Dash OpenParen Month CloseParen UASymbol;
 YearKnownMonthUAParenUA : OpenParen YearKnownMonthUA CloseParen UASymbol;
 Level2YearMonthUA : Year UASymbol Dash OpenParen Month CloseParen UASymbol;
 Level2YearMonthUAParenUA : OpenParen YearMonthUA CloseParen UASymbol;
-Level2YearMonthDayUA : OpenParen Year CloseParen UASymbol Dash Month Dash Day UASymbol;
+Level2YearMonthDayUA
+	: OpenParen Year CloseParen UASymbol Dash Month Dash Day UASymbol
+	;
 Level2YearMonthDayUAParenUA : OpenParen YearMonthDayUA CloseParen UASymbol;
 MonthKnownYearUA : Year UASymbol Dash Month;
 MonthKnownYearUAParenUA : OpenParen MonthKnownYearUA CloseParen UASymbol;
@@ -189,7 +190,11 @@ YearWithU
     | DigitOrU DigitOrU U DigitOrU
     | DigitOrU DigitOrU DigitOrU U
     ;
-YearMonthWithU : Year Dash MonthWithU | YearWithU Dash MonthWithU | YearWithU Dash Month;
+YearMonthWithU
+	: Year Dash MonthWithU
+	| YearWithU Dash MonthWithU
+	| YearWithU Dash Month
+	;
 MonthWithU : ZeroU | OneU | U DigitOrU;
 DayWithU : U DigitOrU | OneThru3 U;
 YearMonthDayWithU
@@ -215,7 +220,7 @@ CommaSpace : ', ';
 // ***********************   Level 2: Parser Rules   ************************ //
 
 level2Expression
-    : partialUncertainOrApproximate
+    : partialUA
     | partialUnspecified
     | choiceList
     | inclusiveList
@@ -224,7 +229,7 @@ level2Expression
     | longYearScientific
     | seasonQualified
     ;
-partialUncertainOrApproximate
+partialUA
 	: MonthDayKnownYearUA | MonthDayKnownYearUAParenUA
 	| MonthKnownYearDayUA | MonthKnownYearDayUAParenUA
 	| YearDayKnownMonthUA | YearDayKnownMonthUAParenUA
@@ -252,7 +257,8 @@ listContent
     ;
 listElement
     : date
-    | dateWithPartialUncertainty
+    | partialUA
+    | partialUnspecified
     | uncertainOrApproxDate
     | unspecifiedDate
     | consecutives
@@ -268,11 +274,7 @@ consecutives
 // ********************  Level 2: Interval Parser Rules  ******************** //
 
 level2Interval
-    : dateOrSeason Slash dateWithPartialUncertainty
-    | dateWithPartialUncertainty Slash dateOrSeason
-    | dateWithPartialUncertainty Slash dateWithPartialUncertainty
-    ;
-dateWithPartialUncertainty
-    : partialUncertainOrApproximate
-    | partialUnspecified
+    : dateOrSeason Slash (partialUA | partialUnspecified)
+    | (partialUA | partialUnspecified) Slash dateOrSeason
+    | (partialUA | partialUnspecified) Slash (partialUA | partialUnspecified)
     ;

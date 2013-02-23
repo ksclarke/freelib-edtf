@@ -8,7 +8,7 @@
  *
  * Author: Kevin S. Clarke (ksclarke@gmail.com)
  * Created: 2013/02/06
- * Updated: 2013/02/22
+ * Updated: 2013/02/24
  *
  * License: BSD 2-Clause http://github.com/ksclarke/freelib-edtf/LICENSE
  */
@@ -26,7 +26,7 @@ Plus : '+';
 Colon : ':';
 Slash : '/';
 
-Year : PositiveYear | NegativeYear | '0000';
+Year : PositiveYear | NegativeYear | YearZero;
 NegativeYear : Dash PositiveYear;
 PositiveYear
     : PositiveDigit Digit Digit Digit
@@ -34,10 +34,9 @@ PositiveYear
     | Digit Digit PositiveDigit Digit
     | Digit Digit Digit PositiveDigit
     ;
-
+YearZero : '0000';
 Digit : PositiveDigit | '0';
 PositiveDigit : '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
-
 Month : OneThru12;
 MonthDay
     : ( '01' | '03' | '05' | '07' | '08' | '10' | '12' ) Dash OneThru31
@@ -52,12 +51,14 @@ Minute : ZeroThru59;
 Second : ZeroThru59;
 
 OneThru12
-    : '01' | '02' | '03' | '04' | '05' | '06' 
-    | '07' | '08' | '09' | '10' | '11' | '12';
+    : '01' | '02' | '03' | '04' | '05' | '06'  | '07' | '08' | '09' | '10'
+    | '11' | '12'
+    ;
 OneThru13 : OneThru12 | '13';
 OneThru23
-    : OneThru13 | '14' | '15' | '16' | '17' 
-    | '18' | '19' | '20' | '21' | '22' | '23';
+    : OneThru13 | '14' | '15' | '16' | '17'  | '18' | '19' | '20' | '21'
+    | '22' | '23'
+    ;
 ZeroThru23 : '00' | OneThru23;
 OneThru29 : OneThru23 | '24' | '25' | '26' | '27' | '28' | '29';
 OneThru30 : OneThru29 | '30';
@@ -65,9 +66,9 @@ OneThru31 : OneThru30 | '31';
 OneThru59 : OneThru31
     | '32' | '33' | '34' | '35' | '36' | '37' | '38' | '39' | '40' | '41'
     | '42' | '43' | '44' | '45' | '46' | '47' | '48' | '49' | '50' | '51'
-    | '52' | '53' | '54' | '55' | '56' | '57' | '58' | '59';
+    | '52' | '53' | '54' | '55' | '56' | '57' | '58' | '59'
+    ;
 ZeroThru59 : '00' | OneThru59;
-
 Time : Hour Colon Minute Colon Second | '24' Colon '00' Colon '00';
 ZOffset : OneThru13 (Colon Minute)? | '14' Colon '00' | '00' Colon OneThru59;
 
@@ -110,14 +111,14 @@ level1Expression
     | unspecifiedDate
     | level1Interval
     | longYearSimpleForm
-    | season;
-
+    | season
+    ;
 unspecifiedDate
     : yearUnspecified
     | monthUnspecified
     | dayUnspecified
-    | dayAndMonthUnspecified;
-
+    | dayAndMonthUnspecified
+    ;
 monthUnspecified : Year Dash UU;
 uncertainOrApproxDate : YearUA | YearMonthUA | YearMonthDayUA;
 longYearSimpleForm : LongYearSimpleForm;
@@ -188,7 +189,7 @@ YearWithU
     | DigitOrU DigitOrU U DigitOrU
     | DigitOrU DigitOrU DigitOrU U
     ;
-YearMonthWithU : (Year | YearWithU) Dash MonthWithU | YearWithU Dash Month;
+YearMonthWithU : Year Dash MonthWithU | YearWithU Dash MonthWithU | YearWithU Dash Month;
 MonthWithU : ZeroU | OneU | U DigitOrU;
 DayWithU : U DigitOrU | OneThru3 U;
 YearMonthDayWithU
@@ -203,26 +204,26 @@ YearMonthDayWithU
 DigitOrU : PositiveDigitOrU | Zero;
 PositiveDigitOrU : PositiveDigit | U;
 OneThru3 : '1' | '2' | '3';
-SeasonQualified : Season '^' .+;
+SeasonQualified : Season '^' .+; // ignore non-greedy warning, we want greedy
 MaskedPrecision : Digit Digit (Digit X | XX );
 PositiveInteger : PositiveDigit Digit*;
 LongYearScientific
 	: Y Dash? PositiveInteger 'e' PositiveInteger ('p' PositiveInteger)?
 	;
+CommaSpace : ', ';
 
 // ***********************   Level 2: Parser Rules   ************************ //
 
 level2Expression
     : partialUncertainOrApproximate
     | partialUnspecified
-//    | choiceList
-//    | inclusiveList
+    | choiceList
+    | inclusiveList
     | maskedPrecision
-//    | l2Interval
+    | level2Interval
     | longYearScientific
     | seasonQualified
     ;
-
 partialUncertainOrApproximate
 	: MonthDayKnownYearUA | MonthDayKnownYearUAParenUA
 	| MonthKnownYearDayUA | MonthKnownYearDayUAParenUA
@@ -236,7 +237,6 @@ partialUncertainOrApproximate
 	| MonthKnownYearUA | MonthKnownYearUAParenUA
     | SeasonUA
     ;
-
 partialUnspecified : YearWithU | YearMonthWithU | YearMonthDayWithU;
 longYearScientific : LongYearScientific;
 seasonQualified : SeasonQualified;
@@ -245,30 +245,34 @@ maskedPrecision : MaskedPrecision;
 choiceList : OpenBracket listContent CloseBracket;
 inclusiveList : OpenBrace listContent CloseBrace;
 listContent
-    : earlier (Comma listElement)*
-    | (earlier Comma)? (listElement Comma)* later
-    | listElement (Comma listElement)+
-    | consecutives;
+    : earlier ((Comma | CommaSpace) listElement)*
+    | (earlier (Comma | CommaSpace))? (listElement (Comma | CommaSpace))* later
+    | listElement ((Comma | CommaSpace) listElement)+
+    | consecutives
+    ;
 listElement
     : date
     | dateWithPartialUncertainty
     | uncertainOrApproxDate
     | unspecifiedDate
-    | consecutives;
+    | consecutives
+    ;
 earlier : DotDot date;
 later : date DotDot;
 consecutives
     : YearMonthDay DotDot YearMonthDay
     | YearMonth DotDot YearMonth
-    | Year DotDot Year;
+    | Year DotDot Year
+    ;
 
 // ********************  Level 2: Interval Parser Rules  ******************** //
 
-l2Interval
+level2Interval
     : dateOrSeason Slash dateWithPartialUncertainty
     | dateWithPartialUncertainty Slash dateOrSeason
-    | dateWithPartialUncertainty Slash dateWithPartialUncertainty;
-
+    | dateWithPartialUncertainty Slash dateWithPartialUncertainty
+    ;
 dateWithPartialUncertainty
     : partialUncertainOrApproximate
-    | partialUnspecified;
+    | partialUnspecified
+    ;

@@ -765,4 +765,93 @@ public class EDTFParserTest {
 			fail(details.getMessage());
 		}
 	}
+	
+	@Test
+	public void level2OneOfSetTest() {
+		try { // Try without spaces after the commas
+			myParser.parse("[1667,1668,1670..1672]");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try { // Try the same thing with a space after a comma
+			myParser.parse("[1667,1668, 1670..1672]");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("[..1760-12-03]");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("[1760-12..]");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("[1760-01, 1760-02, 1760-12..]");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("[1667, 1760-12]");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level2MultipleDatesTest() {
+		try {
+			myParser.parse("{1667,1668, 1670..1672}");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("{1960, 1961-12}");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
+	
+	@Test
+	public void level2ExtendedIntervalTest() {
+		try {
+			myParser.parse("2004-06-(01)~/2004-06-(20)~");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+		
+		try {
+			myParser.parse("2004-06-uu/2004-07-03");
+		}
+		catch (SyntaxException details) {
+			details.printStackTrace(System.err);
+			fail(details.getMessage());
+		}
+	}
 }

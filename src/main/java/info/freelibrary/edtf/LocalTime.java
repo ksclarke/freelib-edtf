@@ -11,7 +11,7 @@ import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
 
 public final class LocalTime implements Serializable,
-		Comparable<ReadablePartial>, ReadablePartial, EDTF {
+		Comparable<ReadablePartial>, ReadablePartial, EDTFInstance {
 
 	/**
 	 * Generated <code>serialVersionUID</code>
@@ -24,6 +24,10 @@ public final class LocalTime implements Serializable,
 		myLocalTime = new org.joda.time.LocalTime();
 	}
 
+	public LocalTime(org.joda.time.LocalTime aLocalTime) {
+		myLocalTime = aLocalTime;
+	}
+	
 	public LocalTime(Chronology aChronology) {
 		myLocalTime = new org.joda.time.LocalTime(aChronology);
 	}
@@ -120,5 +124,9 @@ public final class LocalTime implements Serializable,
 	@Override
 	public int compareTo(ReadablePartial aReadablePartial) {
 		return myLocalTime.compareTo(aReadablePartial);
+	}
+	
+	org.joda.time.LocalTime getLocalTime() {
+		return myLocalTime;
 	}
 }

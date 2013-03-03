@@ -12,7 +12,7 @@ import org.joda.time.ReadableDateTime;
 import org.joda.time.ReadableInstant;
 
 public class DateTime implements Serializable, ReadableInstant,
-		ReadableDateTime, Comparable<ReadableInstant>, EDTF {
+		ReadableDateTime, Comparable<ReadableInstant>, EDTFInstance {
 
 	/**
 	 * 
@@ -25,6 +25,10 @@ public class DateTime implements Serializable, ReadableInstant,
 		myDateTime = new org.joda.time.DateTime();
 	}
 
+	public DateTime(org.joda.time.DateTime aJodaDateTime) {
+		myDateTime = aJodaDateTime;
+	}
+	
 	public DateTime(Chronology aChronology) {
 		myDateTime = new org.joda.time.DateTime(aChronology);
 	}

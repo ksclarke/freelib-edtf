@@ -11,7 +11,7 @@ import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
 
 public class LocalDateTime implements Serializable,
-		Comparable<ReadablePartial>, ReadablePartial, EDTF {
+		Comparable<ReadablePartial>, ReadablePartial, EDTFInstance {
 
 	/**
 	 * 
@@ -24,6 +24,10 @@ public class LocalDateTime implements Serializable,
 		myLocalDateTime = new org.joda.time.LocalDateTime();
 	}
 
+	public LocalDateTime(org.joda.time.LocalDateTime aLocalDateTime) {
+		myLocalDateTime = aLocalDateTime;
+	}
+	
 	public LocalDateTime(Chronology aChronology) {
 		myLocalDateTime = new org.joda.time.LocalDateTime(aChronology);
 	}

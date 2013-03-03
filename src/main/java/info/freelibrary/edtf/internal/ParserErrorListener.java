@@ -1,6 +1,6 @@
 package info.freelibrary.edtf.internal;
 
-import info.freelibrary.edtf.internal.EDTFParser;
+import info.freelibrary.edtf.internal.ExtendedDateTimeFormatParser;
 
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -17,9 +17,9 @@ public class ParserErrorListener extends BaseErrorListener {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ParserErrorListener.class);
 
-	private EDTFParser myParser;
+	private ExtendedDateTimeFormatParser myParser;
 
-	public ParserErrorListener(EDTFParser aParser) {
+	public ParserErrorListener(ExtendedDateTimeFormatParser aParser) {
 		myParser = aParser;
 	}
 

@@ -3,7 +3,7 @@ package info.freelibrary.edtf;
 public class SyntaxException extends Exception {
 
 	/**
-	 * 
+	 * Generated <code>serialVersionUID</code>.
 	 */
 	private static final long serialVersionUID = 4426317287422720544L;
 

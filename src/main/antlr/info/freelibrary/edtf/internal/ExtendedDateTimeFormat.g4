@@ -10,7 +10,7 @@
  * License: BSD 2-Clause http://github.com/ksclarke/freelib-edtf/LICENSE
  */
 
-grammar EDTF;
+grammar ExtendedDateTimeFormat;
 
 edtf : level0Expression | level1Expression | level2Expression;
 

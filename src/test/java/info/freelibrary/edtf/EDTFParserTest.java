@@ -7,11 +7,11 @@ import org.junit.BeforeClass;
 
 public class EDTFParserTest {
 	
-	private static DateTimeParser myParser;
+	private static EDTFParser myParser;
 
 	@BeforeClass
 	public static void runBeforeClass() {
-		myParser = new DateTimeParser();
+		myParser = new EDTFParser();
 	}
 	
 	@Test

@@ -74,6 +74,10 @@
         <configuration>
           <excludePackageNames>info.freelibrary.edtf.internal</excludePackageNames>
           <public>true</public>
+          <links>
+            <link>http://joda-time.sourceforge.net/apidocs/</link>
+            <link>http://docs.oracle.com/javase/7/docs/api/</link>
+          </links>
         </configuration>
       </plugin>
     </plugins>
